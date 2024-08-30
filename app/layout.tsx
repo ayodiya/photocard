@@ -24,10 +24,8 @@ export default function RootLayout({
           <ThemeProvider theme={theme}>
             <Box
               sx={{
-                backgroundColor: "background.default",
                 fontFamily: "Open sans",
                 minHeight: "100vh",
-                color: "text.primary",
               }}
             >
               {children}
