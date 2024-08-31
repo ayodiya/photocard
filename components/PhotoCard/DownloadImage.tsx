@@ -83,9 +83,15 @@ export default function DownloadImage({ setStage }: DownloadImageProps) {
         <ButtonCom
           backgroundColor="secondary.main"
           text="Previous"
-          setStage={() => setStage(2)}
+          onClick={() => setStage(2)}
         />
-        <ButtonCom text="Download Image" setStage={() => downloadImage()} />
+        <ButtonCom
+          text="Download Image"
+          onClick={() => {
+            downloadImage();
+            setStage(1);
+          }}
+        />
       </Stack>
     </Box>
   );
