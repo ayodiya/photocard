@@ -3,12 +3,12 @@ import { MouseEventHandler } from "react";
 
 interface ButtonProps {
   text: string;
-  setStage: MouseEventHandler<HTMLButtonElement>;
+  onClick: MouseEventHandler<HTMLButtonElement>;
   backgroundColor?: string;
 }
 
 export default function ButtonCom({
-  setStage,
+  onClick,
   text,
   backgroundColor,
 }: ButtonProps) {
@@ -21,7 +21,7 @@ export default function ButtonCom({
           backgroundColor: backgroundColor,
         },
       }}
-      onClick={setStage}
+      onClick={onClick}
       disableElevation
       variant="contained"
     >
