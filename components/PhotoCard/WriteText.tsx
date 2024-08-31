@@ -32,13 +32,28 @@ export default function WriteText({ setStage, selectedPhoto }: WriteTextProps) {
       if (canvas && ctx) {
         // Set canvas to original image size for high-quality download
         const aspectRatio = 4 / 5;
-        const width = 1000; // Increase canvas size for better resolution
-        const height = width * aspectRatio;
+        // Use the original image dimensions
+        let imgWidth = img.width;
+        let imgHeight = img.height;
 
-        canvas.width = width;
-        canvas.height = height;
+        // Adjust the image dimensions to match the new aspect ratio
+        if (imgWidth / imgHeight > aspectRatio) {
+          imgHeight = imgWidth / aspectRatio;
+        } else {
+          imgWidth = imgHeight * aspectRatio;
+        }
 
-        drawImageAndText(ctx, img, "Hello", nameFormState);
+        canvas.width = imgWidth;
+        canvas.height = imgHeight;
+
+        // Center the image on the canvas
+        const offsetX = (canvas.width - img.width) / 2;
+        const offsetY = (canvas.height - img.height) / 2;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, offsetX, offsetY, img.width, img.height);
+
+        drawImageAndText(ctx, img, "Thank you", nameFormState);
 
         // Save the high-res canvas data to localStorage
         const dataURL = canvas.toDataURL("image/png");
@@ -90,11 +105,17 @@ export default function WriteText({ setStage, selectedPhoto }: WriteTextProps) {
             alignItems: "center",
           }}
         >
-          <canvas
-            className={`${photoCardStyles.canvasStyle}`}
-            ref={canvasRef}
-            style={{ border: "1px solid #000" }}
-          ></canvas>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <canvas
+              className={`${photoCardStyles.canvasStyle}`}
+              ref={canvasRef}
+            ></canvas>
+          </Box>
           <TextField
             label="Type your text here"
             variant="outlined"
