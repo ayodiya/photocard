@@ -60,8 +60,10 @@ export default function PhotoCard() {
   };
 
   useEffect(() => {
-    fetchPhotos();
-  }, []);
+    if (stage === 1) {
+      fetchPhotos();
+    }
+  }, [stage]);
 
   useEffect(() => {
     const savedStage = localStorage.getItem("photoCardStage");
