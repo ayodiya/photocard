@@ -1,24 +1,69 @@
 import Box from "@mui/material/Box";
-import Image from "next/image";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import ButtonCom from "../ButtonCom";
-import imagePlaceholder from "@/public/imagePlaceholder.png";
+import photoCardStyles from "./styles/photocard.module.css";
+import { PhotosProps } from "@/types/types";
 
 interface WriteTextProps {
   setStage: (stage: number) => void;
+  selectedPhoto: PhotosProps | "";
 }
 
-export default function WriteText({ setStage }: WriteTextProps) {
+export default function WriteText({ setStage, selectedPhoto }: WriteTextProps) {
   const [nameFormState, setNameFormState] = useState<string>("");
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setNameFormState(e.target.value);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    const img: HTMLImageElement = new Image();
+
+    img.crossOrigin = "anonymous";
+
+    const selectedImage = JSON.parse(
+      localStorage.getItem("photoCardSelectedImage") || "{}",
+    );
+    img.src = selectedImage.imageUrl || "";
+
+    img.onload = () => {
+      if (canvas && ctx) {
+        // Set canvas to original image size for high-quality download
+        const aspectRatio = 4 / 5;
+        const width = 1000; // Increase canvas size for better resolution
+        const height = width * aspectRatio;
+
+        canvas.width = width;
+        canvas.height = height;
+
+        drawImageAndText(ctx, img, "Hello", nameFormState);
+
+        // Save the high-res canvas data to localStorage
+        const dataURL = canvas.toDataURL("image/png");
+        localStorage.setItem("photoAppCanvasDataURL", dataURL);
+      }
+    };
+  }, [nameFormState, selectedPhoto]);
 
   const storeName = () =>
     localStorage.setItem("photoAppUserName", nameFormState);
+
+  const drawImageAndText = (
+    ctx: CanvasRenderingContext2D,
+    img: HTMLImageElement,
+    topText: string,
+    bottomText: string,
+  ) => {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(img, 0, 0);
+    ctx.font = "80px Arial";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+    ctx.fillText(topText, ctx.canvas.width / 2, 150);
+    ctx.fillText(bottomText, ctx.canvas.width / 2, ctx.canvas.height - 150);
+  };
 
   return (
     <Box>
@@ -38,32 +83,29 @@ export default function WriteText({ setStage }: WriteTextProps) {
           paddingTop: "20px",
         }}
       >
-        <Stack
-          spacing={2}
+        <Box
           sx={{
-            justifyContent: "center",
+            display: "flex",
+            flexDirection: "column",
             alignItems: "center",
-            paddingTop: "30px",
           }}
         >
+          <canvas
+            className={`${photoCardStyles.canvasStyle}`}
+            ref={canvasRef}
+            style={{ border: "1px solid #000" }}
+          ></canvas>
           <TextField
-            onChange={handleNameInput}
-            label="Write your name"
+            label="Type your text here"
             variant="outlined"
             value={nameFormState}
+            onChange={(e) => setNameFormState(e.target.value)}
+            sx={{ marginTop: "20px" }}
           />
-          <Box
-            sx={{
-              width: { xs: "50%", md: "30%" },
-            }}
-          >
-            <Image
-              src={imagePlaceholder}
-              style={{ width: "100%", height: "100%" }}
-              alt="image"
-            />
-          </Box>
-        </Stack>
+          {/* <button onClick={downloadImage} style={{ marginTop: "20px" }}>
+            Download Image with Text
+          </button> */}
+        </Box>
       </Box>
       <Stack
         direction={{ xs: "column", md: "row" }}
