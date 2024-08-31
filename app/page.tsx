@@ -1,7 +1,4 @@
-"use client";
-
 import Container from "@mui/material/Container";
-import { useState } from "react";
 
 import PhotoCard from "@/components/PhotoCard";
 
