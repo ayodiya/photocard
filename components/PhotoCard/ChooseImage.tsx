@@ -85,7 +85,7 @@ export default function ChooseImage({
       >
         <ButtonCom
           text="Next"
-          setStage={() => {
+          onClick={() => {
             localStorage.setItem(
               "photoCardSelectedImage",
               JSON.stringify(selectedPhoto || ""),
