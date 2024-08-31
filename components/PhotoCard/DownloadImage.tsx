@@ -1,15 +1,33 @@
 import Box from "@mui/material/Box";
-import Image from "next/image";
 import Stack from "@mui/material/Stack";
+import { useEffect, useState } from "react";
 
 import ButtonCom from "../ButtonCom";
-import imagePlaceholder from "@/public/imagePlaceholder.png";
 
 interface DownloadImageProps {
   setStage: (stage: number) => void;
 }
 
 export default function DownloadImage({ setStage }: DownloadImageProps) {
+  const [downloadableImage, setDownloadImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const imageURL = localStorage.getItem("photoAppCanvasDataURL");
+
+    if (imageURL) {
+      setDownloadImage(imageURL);
+    }
+  }, []);
+
+  const downloadImage = () => {
+    if (downloadableImage) {
+      const link = document.createElement("a");
+      link.href = downloadableImage;
+      link.download = "custom-image.png";
+      link.click();
+    }
+  };
+
   return (
     <Box>
       <Box
@@ -41,11 +59,15 @@ export default function DownloadImage({ setStage }: DownloadImageProps) {
               width: { xs: "50%", md: "30%" },
             }}
           >
-            <Image
-              src={imagePlaceholder}
-              style={{ width: "100%", height: "100%" }}
-              alt="image"
-            />
+            {downloadableImage ? (
+              <img
+                src={downloadableImage}
+                style={{ width: "100%", height: "100%" }}
+                alt="image"
+              />
+            ) : (
+              <p>No image available for download</p>
+            )}
           </Box>
         </Stack>
       </Box>
@@ -63,7 +85,7 @@ export default function DownloadImage({ setStage }: DownloadImageProps) {
           text="Previous"
           setStage={() => setStage(2)}
         />
-        <ButtonCom text="Next" setStage={() => setStage(2)} />
+        <ButtonCom text="Download Image" setStage={() => downloadImage()} />
       </Stack>
     </Box>
   );
