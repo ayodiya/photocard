@@ -20,9 +20,7 @@ interface PhotosProps {
 }
 
 export default function PhotoCard() {
-  const [stage, setStage] = useState<string>(
-    localStorage.getItem("photoCardStage") || "1",
-  );
+  const [stage, setStage] = useState<number>(1);
   const [photos, setPhotos] = useState<PhotosProps[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<PhotosProps | "">("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -66,17 +64,17 @@ export default function PhotoCard() {
   }, []);
 
   useEffect(() => {
-    if (localStorage.getItem("photoCardStage") === null) {
-      localStorage.setItem("photoCardStage", "1");
+    const savedStage = localStorage.getItem("photoCardStage");
+    if (savedStage === null) {
+      localStorage.setItem("photoCardStage", "1"); // Store as a string
     } else {
-      setStage(localStorage.getItem("photoCardStage") || "1");
+      setStage(parseInt(savedStage, 10) || 1); // Convert to number
     }
   }, []);
 
   const handleSetStage = (newStage: number) => {
-    const stageString = newStage.toString();
-    setStage(stageString);
-    localStorage.setItem("photoCardStage", stageString);
+    setStage(newStage);
+    localStorage.setItem("photoCardStage", newStage.toString());
   };
 
   return (
@@ -109,7 +107,7 @@ export default function PhotoCard() {
       )}
       {photos.length > 0 && (
         <Box>
-          {stage === "1" && (
+          {stage === 1 && (
             <ChooseImage
               setStage={handleSetStage}
               photos={photos}
@@ -117,13 +115,13 @@ export default function PhotoCard() {
               selectedPhoto={selectedPhoto}
             />
           )}
-          {stage === "2" && (
+          {stage === 2 && (
             <WriteText
               setStage={handleSetStage}
               selectedPhoto={selectedPhoto}
             />
           )}
-          {stage === "3" && <DownloadImage setStage={handleSetStage} />}
+          {stage === 3 && <DownloadImage setStage={handleSetStage} />}
         </Box>
       )}
     </>
