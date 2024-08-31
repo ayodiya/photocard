@@ -30,28 +30,32 @@ export default function WriteText({ setStage, selectedPhoto }: WriteTextProps) {
 
     img.onload = () => {
       if (canvas && ctx) {
-        // Set canvas to original image size for high-quality download
+        // Set canvas dimensions to fit aspect ratio
         const aspectRatio = 4 / 5;
-        // Use the original image dimensions
+        const canvasWidth = canvas.clientWidth;
+        const canvasHeight = canvasWidth / aspectRatio;
+
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        // Center the image and cover the entire canvas
         let imgWidth = img.width;
         let imgHeight = img.height;
 
-        // Adjust the image dimensions to match the new aspect ratio
-        if (imgWidth / imgHeight > aspectRatio) {
-          imgHeight = imgWidth / aspectRatio;
+        const canvasAspectRatio = canvasWidth / canvasHeight;
+        if (imgWidth / imgHeight > canvasAspectRatio) {
+          imgWidth = canvasWidth;
+          imgHeight = imgWidth / (img.width / img.height);
         } else {
-          imgWidth = imgHeight * aspectRatio;
+          imgHeight = canvasHeight;
+          imgWidth = imgHeight * (img.width / img.height);
         }
 
-        canvas.width = imgWidth;
-        canvas.height = imgHeight;
-
-        // Center the image on the canvas
-        const offsetX = (canvas.width - img.width) / 2;
-        const offsetY = (canvas.height - img.height) / 2;
+        const offsetX = (canvasWidth - imgWidth) / 2;
+        const offsetY = (canvasHeight - imgHeight) / 2;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, offsetX, offsetY, img.width, img.height);
+        ctx.drawImage(img, offsetX, offsetY, imgWidth, imgHeight);
 
         drawImageAndText(ctx, img, "Thank you", nameFormState);
 
@@ -72,12 +76,12 @@ export default function WriteText({ setStage, selectedPhoto }: WriteTextProps) {
     bottomText: string,
   ) => {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.drawImage(img, 0, 0);
-    ctx.font = "80px Arial";
+    ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.font = "40px Arial";
     ctx.fillStyle = "white";
     ctx.textAlign = "center";
-    ctx.fillText(topText, ctx.canvas.width / 2, 150);
-    ctx.fillText(bottomText, ctx.canvas.width / 2, ctx.canvas.height - 150);
+    ctx.fillText(topText, ctx.canvas.width / 2, 50);
+    ctx.fillText(bottomText, ctx.canvas.width / 2, ctx.canvas.height - 50);
   };
 
   return (
@@ -98,24 +102,22 @@ export default function WriteText({ setStage, selectedPhoto }: WriteTextProps) {
           paddingTop: "20px",
         }}
       >
-        <Box
+        <Stack
+          direction="column"
           sx={{
-            display: "flex",
-            flexDirection: "column",
+            justifyContent: "center",
             alignItems: "center",
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
+          <canvas
+            className={`${photoCardStyles.canvasStyle}`}
+            style={{
+              border: "2px solid red",
+              width: "70%", // Ensure canvas width fits desired percentage
+              height: "auto", // Maintain aspect ratio
             }}
-          >
-            <canvas
-              className={`${photoCardStyles.canvasStyle}`}
-              ref={canvasRef}
-            ></canvas>
-          </Box>
+            ref={canvasRef}
+          ></canvas>
           <TextField
             label="Type your text here"
             variant="outlined"
@@ -123,10 +125,7 @@ export default function WriteText({ setStage, selectedPhoto }: WriteTextProps) {
             onChange={(e) => setNameFormState(e.target.value)}
             sx={{ marginTop: "20px" }}
           />
-          {/* <button onClick={downloadImage} style={{ marginTop: "20px" }}>
-            Download Image with Text
-          </button> */}
-        </Box>
+        </Stack>
       </Box>
       <Stack
         direction={{ xs: "column", md: "row" }}
@@ -140,11 +139,11 @@ export default function WriteText({ setStage, selectedPhoto }: WriteTextProps) {
         <ButtonCom
           backgroundColor="secondary.main"
           text="Previous"
-          setStage={() => setStage(1)}
+          onClick={() => setStage(1)}
         />
         <ButtonCom
           text="Next"
-          setStage={() => {
+          onClick={() => {
             setStage(3);
             storeName();
           }}
